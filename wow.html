@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HBD!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* =========================================
+           1. CSS (스타일 및 디자인)
+           ========================================= */
+        
+        :root {
+            --bg-color: #fff0f5;
+            --grid-line: #ffd2d9;
+            --sidebar-bg: rgba(255, 255, 255, 0.75);
+            --window-bg: #ffffff;
+            --accent-color: #ff69b4;
+            --text-main: #4a4a4a;
+            --f1-red: #ff1801;
+            --mercedes-green: #00d2be; 
+            --shadow-soft: 0 10px 30px rgba(255, 182, 193, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            touch-action: manipulation;
+        }
+
+        @font-face {
+            font-family: 'ThinRounded';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-1@1.0/ThinDungGeunMo.woff2') format('woff2');
+            font-weight: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'BoldRound';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2507-2@1.0/BoldDungGeunMo.woff2') format('woff2');
+            font-weight: normal;
+            font-display: swap;
+        }
+
+        body {
+            font-family: 'BoldRound', 'ThinRounded', 'Noto Sans KR', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            color: var(--text-main);
+            user-select: none;
+            background-color: var(--bg-color);
+        }
+
+        .desktop {
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 30px 30px;
+            display: flex;
+            position: relative;
+        }
+
+        .bg-decor {
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.7;
+            filter: drop-shadow(0 0 5px rgba(255, 105, 180, 0.3));
+            animation: floating 4s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(8deg); }
+        }
+
+        .top-status {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @media (min-width: 768px) {
+            .top-status { left: 110px; transform: none; }
+        }
+
+        .clock-container {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 12px 24px;
+            border-radius: 18px;
+            border: 2px solid #fff;
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) { .clock-container { align-items: flex-start; } }
+
+        #clock-time { font-size: 36px; font-weight: 900; color: #ff69b4; line-height: 1; letter-spacing: -1.5px; margin-bottom: 4px; }
+        #clock-date { font-family: 'ThinRounded', sans-serif; font-size: 15px; font-weight: 700; color: #d15c82; opacity: 0.9; }
+
+        /* 사이드바 -> 모바일 하단 바로 변경 */
+        .sidebar {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 450px;
+            height: 75px;
+            background: var(--sidebar-bg);
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 10px;
+            z-index: 1000;
+            box-shadow: 0 10px 20px rgba(255, 192, 203, 0.3);
+        }
+
+        @media (min-width: 768px) {
+            .sidebar {
+                position: relative; left: 0; transform: none; width: 90px;
+                height: calc(100% - 40px); margin: 20px 0 20px 10px; flex-direction: column;
+                justify-content: flex-start; padding-top: 25px; gap: 18px;
+            }
+        }
+
+        .app-icon { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.25s; width: 65px; flex-shrink: 0; }
+        .app-icon:active { transform: scale(0.92); }
+
+        .icon-box {
+            width: 44px; height: 44px; background: white; border-radius: 12px;
+            display: flex; justify-content: center; align-items: center; font-size: 22px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08); border: 2px solid white; margin-bottom: 4px;
+        }
+
+        @media (min-width: 768px) {
+            .icon-box { width: 52px; height: 52px; font-size: 26px; border-radius: 14px; margin-bottom: 6px; }
+            .app-icon { width: 75px; }
+        }
+
+        .icon-label { font-size: 10px; font-weight: 700; color: #d15c82; letter-spacing: -0.5px; }
+        .icon-box.letter { background: #ffe4e1; }
+        .icon-box.cat { background: #fffacd; }
+        .icon-box.f1 { background: #e0f7fa; }
+        .icon-box.music { background: #f3e5f5; }
+        .icon-box.calendar { background: #e8f5e9; }
+
+        /* 윈도우 팝업 (반응형 너비 적용) */
+        .window-container {
+            position: absolute;
+            width: 85vw;
+            max-width: 380px;
+            background: var(--window-bg);
+            border-radius: 16px;
+            border: 2px solid #fff;
+            box-shadow: 10px 10px 0 rgba(255, 192, 203, 0.3), 0 15px 40px rgba(0,0,0,0.12);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            overflow: hidden;
+            transform: scale(0.85);
+            opacity: 0;
+            transition: opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1), transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            pointer-events: none;
+        }
+
+        .window-container.small-win { max-width: 300px; }
+        .window-container.visible { opacity: 1; transform: scale(1); pointer-events: auto; }
+
+        .window-header {
+            height: 42px;
+            background: #ffe4e9;
+            border-bottom: 1.5px solid #ffccd5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            cursor: grab;
+            position: relative;
+            touch-action: none; /* 드래그 중 브라우저 스크롤 방지 */
+        }
+
+        .traffic-lights { display: flex; gap: 8px; z-index: 10; }
+        .light { width: 13px; height: 13px; border-radius: 50%; }
+        .light.red { background: #ff5f56; cursor: pointer; }
+        .light.yellow { background: #ffbd2e; }
+        .light.green { background: #27c93f; }
+
+        .close-btn-right { cursor: pointer; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; border-radius: 8px; z-index: 10; color: #d67a94; font-weight: bold; font-size: 18px; }
+
+        .window-title { position: absolute; left: 0; right: 0; text-align: center; font-size: 13px; font-weight: 800; color: #d67a94; pointer-events: none; padding: 0 50px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .window-content { padding: 15px; max-height: 55vh; overflow-y: auto; background: white; -webkit-overflow-scrolling: touch; }
+
+        /* --- 음악 플레이어 --- */
+        .music-player {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .album-art {
+            width: 120px;
+            height: 120px;
+            background: #ffe4e1;
+            border-radius: 50%;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            border: 4px solid #fff;
+            animation: spin 6s linear infinite;
+            animation-play-state: paused;
+        }
+        .album-art.playing { animation-play-state: running; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .music-info b { font-size: 16px; display: block; margin-bottom: 6px; }
+        .music-info span { font-size: 13px; color: #d67a94; }
+
+        .progress-container {
+            width: 100%;
+            margin: 18px 0;
+            cursor: pointer;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-current {
+            width: 0%;
+            height: 100%;
+            background: var(--accent-color);
+            border-radius: 10px;
+            transition: width 0.1s linear;
+        }
+
+        .controls { display: flex; gap: 24px; align-items: center; margin-bottom: 18px; }
+        .play-btn {
+            width: 52px;
+            height: 52px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 5px 12px rgba(255, 105, 180, 0.4);
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 0.2s;
+        }
+        .play-btn:hover { transform: scale(1.05); }
+
+        .volume-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 0 15px;
+        }
+        .volume-box span { font-size: 14px; }
+        .volume-slider {
+            flex-grow: 1;
+            accent-color: var(--accent-color);
+            height: 4px;
+            cursor: pointer;
+        }
+
+        /* --- 고양이 콜라주 --- */
+        .cat-collage {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .cat-item {
+            background: white;
+            padding: 6px 6px 18px 6px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+            transform: rotate(-2deg);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+        .cat-item:nth-child(even) { transform: rotate(2deg); }
+        .cat-item:hover { transform: rotate(0) scale(1.08); z-index: 5; }
+        .cat-item img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            display: block;
+            border-radius: 2px;
+        }
+
+        /* --- 캘린더 --- */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+        .day { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; font-size: 12px; border-radius: 8px; font-weight: 500; }
+        .day.header { color: #d15c82; font-weight: bold; font-size: 11px; margin-bottom: 5px; }
+        .day.birthday { background: #ff69b4; color: white; font-weight: 900; position: relative; box-shadow: 0 3px 6px rgba(255, 105, 180, 0.3); }
+        .day.birthday::after { content: '🎂'; position: absolute; top: -14px; font-size: 12px; left: 50%; transform: translateX(-50%); }
+
+        /* --- 이미지 라이트박스 --- */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.88);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            cursor: zoom-out;
+            backdrop-filter: blur(8px);
+        }
+        .lightbox.visible { display: flex; }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 85%;
+            border: 12px solid white;
+            border-radius: 6px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6);
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .lightbox.visible img { transform: scale(1); }
+
+        .taskbar { display: none; }
+        @media (min-width: 768px) {
+            .taskbar { 
+                display: block; position: absolute; bottom: 20px; right: 25px; background: rgba(255, 255, 255, 0.7); 
+                backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 20px; font-size: 14px; 
+                font-weight: bold; color: #d15c82; z-index: 2000; border: 1.5px solid white;
+            }
+        }
+
+        
+        /* --- 편지 섹션 --- */
+        .letter-wrap h2 { font-size: 20px; color: var(--accent-color); margin-bottom: 15px; text-align: center; font-weight: 900; }
+        .letter-text { 
+            background: #fffafa; 
+            padding: 18px; 
+            border-radius: 12px; 
+            border: 2px dashed #ffb6c1; 
+            font-size: 14.5px; 
+            color: #555;
+            word-break: keep-all;
+        }
+
+        /* --- F1 섹션 --- */
+        .f1-wrap { border: 2.5px solid var(--f1-red); padding: 15px; border-radius: 12px; background: #fff; }
+        .f1-tag { background: var(--f1-red); color: white; font-weight: bold; font-style: italic; padding: 4px 10px; display: inline-block; transform: skew(-15deg); margin-bottom: 12px; font-size: 12px; }
+
+        .slider-container { position: relative; margin: 0 auto; width: 100%; max-width: 300px; }
+        .george-slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 0;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            border: 1px solid #eee;
+        }
+        .george-slider::-webkit-scrollbar { display: none; }
+        .george-slider img { flex: 0 0 100%; scroll-snap-align: start; width: 100%; height: 220px; object-fit: cover; }
+        
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.6);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.2s;
+        }
+        .slider-nav:hover { background: white; }
+        .slider-nav.prev { left: 8px; }
+        .slider-nav.next { right: 8px; }
+
+        .f1-nav-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        .f1-change-btn {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .f1-change-btn:hover { background: #e0e0e0; }
+        .f1-change-btn:active { transform: scale(0.95); }
+
+        .taskbar { 
+            position: absolute; 
+            bottom: 20px; 
+            right: 25px; 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(10px);
+            padding: 10px 20px; 
+            border-radius: 20px; 
+            font-size: 14px; 
+            font-weight: bold; 
+            color: #d15c82; 
+            z-index: 2000; 
+            border: 1.5px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="desktop" id="desktop">
+        <!-- 배경 장식 -->
+        <div class="bg-decor" style="top: 23%; left: 12%; font-size: 40px;">✨</div>
+        <div class="bg-decor" style="top: 61%; right: 18%; font-size: 35px;">🎂</div>
+        <div class="bg-decor" style="top: 44%; left: 75%; font-size: 32px;">🎈</div>
+        <div class="bg-decor" style="top: 15%; right: 28%; font-size: 36px;">💝</div>
+        <div class="bg-decor" style="top: 72%; left: 22%; font-size: 34px;">⭐</div>
+
+        <div class="top-status">
+            <div class="clock-container">
+                <span id="clock-time">00:00</span>
+                <span id="clock-date">00.00 SUN</span>
+            </div>
+        </div>
+
+        <nav class="sidebar">
+            <div class="app-icon" onclick="createWindow('letter')">
+                <div class="icon-box letter">💌</div>
+                <span class="icon-label">Letter</span>
+            </div>
+            <div class="app-icon" onclick="createWindow('cat')">
+                <div class="icon-box cat">🐱</div>
+                <span class="icon-label">For You</span>
+            </div>
+            <div class="app-icon" onclick="createWindow('f1')">
+                <div class="icon-box f1">🏎</div>
+                <span class="icon-label">My Racer</span>
+            </div>
+            <div class="app-icon" onclick="createWindow('music')">
+                <div class="icon-box music">🎵</div>
+                <span class="icon-label">Music</span>
+            </div>
+            <div class="app-icon" onclick="createWindow('calendar')">
+                <div class="icon-box calendar">🗓</div>
+                <span class="icon-label">Calendar</span>
+            </div>
+            <div class="app-icon" onclick="createWindow('tree')">
+                <div class="icon-box tree">🎄</div>
+                <span class="icon-label">Christmas Tree</span>
+            </div>
+        </nav>
+
+        <div id="windows-area"></div>
+
+        <div class="taskbar">
+            <span id="clock-bottom">00:00</span>
+        </div>
+    </div>
+
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Cat Zoomed">
+    </div>
+
+    <audio id="bday-audio" src="생축.mp3" preload="auto"></audio>
+
+    <script>
+        const audio = document.getElementById('bday-audio');
+        
+        // F1 드라이버 데이터베이스
+        const f1Drivers = [
+            {
+                name: "조지 러셀",
+                engName: "George Russell",
+                number: 63,
+                team: "메르세데스",
+                teamEng: "Mercedes AMG",
+                color: "var(--mercedes-green)",
+                birth: "1998. 2. 15.",
+                desc: "👽 <b>\"토이스토리 우디 닮은 꼴 ㅎㅎ\"</b><br>메르세데스의 성골 에이스. 알렉스 알본, 랜도 노리스와 함께 19 루키즈!<br>제일 잘하는 건 타이어 관리🛞",
+                images: ["image/georgeheadphone.jpg", "image/georgeinhelmet.jpg", "image/georgewoody.jpg"]
+            },
+            {
+                name: "안드레아 키미 안토넬리",
+                engName: "Andrea Kimi Antonelli",
+                number: 12,
+                team: "메르세데스",
+                teamEng: "Mercedes AMG",
+                color: "var(--mercedes-green)",
+                birth: "2006. 8. 25.",
+                desc: "🐤 <b>\"최연소 기록 다수 보유\"</b><br>올해 데뷔한 따끈따끈한 신인...❤️<br>절친 드라이버는 올리 베어만...<br>최애 드라이버는 막스...❤️",
+                images: ["image/kimistanding.jpg", "image/beautifulkimi.webp", "image/smallkimi.png"]
+            },
+            {
+                name: "맥스 베르스타펜",
+                engName: "Max Verstappen",
+                number: 3,
+                team: "레드불 레이싱",
+                teamEng: "Red Bull Racing",
+                color: "#0600ef",
+                birth: "1997. 9. 30.",
+                desc: "🦁 <b>\"현존 최강의 레이서\"</b><br>압도적인 드라이빙 스킬로 F1을 지배하고 있는 4회 연속 월드 챔피언!<br>올해부터는 3번을 쓰게 될 예정!<br>아이스에이지 시드와 닮은 꼴!!",
+                images: ["image/sittingmax.jpg", "image/2020belgianmax.jpg", "image/maxsid.jpg"]
+            }
+        ];
+
+        let currentDriverIndex = 0;
+
+        const contents = {
+            letter: {
+                title: "To. My Best Friend",
+                icon: "💌",
+                isSmall: false,
+                html: `
+                    <div class="letter-wrap">
+                        <h2>🎉 Happy Birthday!</h2>
+                        <div class="letter-text" style="font-family: 'ThinRounded', sans-serif;">
+                            갹!!!! 생일 축하해!!!<br><br>
+                            원래는 종이 편지로 쓰려고 했는데, 어우...<br>
+                            요즘 연필을 안 잡아서 그런가 글씨가 너무 안 써져서,<br>
+                            대신 조금 특별하게 이걸로 준비해봤어. ㅎㅎ<br><br>
+
+                            막 수능 끝나고 나면 엄청 대단하게 놀 줄 알았는데,<br>
+                            그냥 너무 놀기만 하는 것 같지만? ㅋㅋ<br>
+                            그래도 너랑 같이 놀면 너무 재밋당... 갹!<br><br>
+
+                            항상 내 곁에서 든든한 친구가 되어줘서 고마워.<br>
+                            갹.. 오글거령ㅎㅎ..ㅎ.ㅎ.ㅎ.ㅎ.......<br><br>
+
+                            광주대 붙은 거 축하하구... 즐거운 생일 되길 바라!!!<br>
+                            올해는 네가 바라는 모든 일들이 다 이뤄지길 바랄게.<br><br>
+
+                            오늘 하루, 세상에서 제일 행복한 사람이 되길!<br>
+                            생일 진짜 진짜 축하해!!! 🎂🎈🎉</div>
+
+                            ps. 분홍색 부분 드래그하면 움직임!
+                    </div>
+                `
+            },
+            cat: {
+                title: "Cat Gallery",
+                icon: "🐱",
+                isSmall: false,
+                html: `
+                    <div class="cat-wrap" style="display: flex; flex-direction: column; align-items: center;">
+                        <div class="cat-collage">
+                            <div class="cat-item" onclick="openLightbox('image/padddockcat.jpg')"><img src="image/padddockcat.jpg" alt="Paddock Cat"></div>
+                            <div class="cat-item" onclick="openLightbox('image/georgecat.avif')"><img src="image/georgecat.avif" alt="George Cat"></div>
+                            <div class="cat-item" onclick="openLightbox('image/georgecat1.jpg')"><img src="image/georgecat1.jpg" alt="George Cat 1"></div>
+                            <div class="cat-item" onclick="openLightbox('image/padddockcat1.jpg')"><img src="image/padddockcat1.jpg" alt="Paddock Cat 1"></div>
+                        </div>
+                        <div class="cat-speech" style="background: #fff3cd; padding: 10px 18px; border-radius: 20px; font-size: 13px; font-weight: bold; color: #856404; text-align: center; margin-top: 10px; border: 1px solid #ffeeba;">
+                            "사진 클릭해서 크게 봐🐾"
+                        </div>
+                    </div>
+                `
+            },
+            f1: {
+                title: "F1 Driver Database",
+                icon: "🏎",
+                isSmall: false,
+                html: `
+                    <div class="f1-wrap" id="f1-content-container">
+                        <!-- 이 영역은 스크립트에서 동적으로 채워집니다 -->
+                    </div>
+                `
+            },            
+            music: {
+                title: "Music Player",
+                icon: "🎵",
+                isSmall: true,
+                html: `
+                    <div class="music-player">
+                        <div class="album-art" id="player-disc">💿</div>
+                        <div class="music-info">
+                            <b>생일 축하합니다</b>
+                            <span style="font-family: 'ThinRounded', sans-serif;">Special Track for You</span>
+                        </div>
+                        <div class="progress-container" onclick="seekAudio(event)">
+                            <div class="progress-bar">
+                                <div class="progress-current" id="music-progress"></div>
+                            </div>
+                        </div>
+                        <div class="controls">
+                            <button class="play-btn" id="play-btn-main" onclick="togglePlay()">▶</button>
+                        </div>
+                        <div class="volume-box">
+                            <span>🔈</span>
+                            <input type="range" class="volume-slider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
+                            <span>🔊</span>
+                        </div>
+                    </div>
+                `
+            },            
+            calendar: {
+                title: "Dec 2025",
+                icon: "🗓",
+                isSmall: true,
+                html: `
+                    <div class="calendar-grid">
+                        <div class="day header">S</div><div class="day header">M</div><div class="day header">T</div><div class="day header">W</div><div class="day header">T</div><div class="day header">F</div><div class="day header">S</div>
+                        ${Array.from({length: 1}, (_, i) => `<div class="day" style="color: #ccc;">30</div>`).join('')}
+                        ${Array.from({length: 31}, (_, i) => `<div class="day ${i+1===24?'birthday':''}">${i+1}</div>`).join('')}
+                    </div>
+                `
+            },
+            tree: {
+                title: "Christmas Tree",
+                icon: "🎄",
+                isSmall: true,
+                html: `
+                    <div style="position: relative; width: 250px; height: 300px; margin: 0 auto; overflow: hidden; background: #f9f9f9; border-radius: 15px; padding: 20px;">
+                        <img src="image/tree.png" 
+                            style="width: 100%; height: 100%; object-fit: scale-down;" alt="Tree">
+
+                        <div class="ornament" style="width: 70px; top: 10%; left: 45%; animation-delay: 0s;">
+                            <img src="image/g1.png" />
+                        </div>
+                        <div class="ornament" style="width: 50px; top: 40%; left: 37%; animation-delay: 0.5s;">
+                            <img src="image/g2.png" />
+                        </div>
+                        <div class="ornament" style="width: 90px; top: 35%; left: 50%; animation-delay: 1.2s;">
+                            <img src="image/g3.png" />
+                        </div>
+                        <div class="ornament" style="width: 50px; top: 65%; left: 25%; animation-delay: 0.8s;">
+                            <img src="image/g4.png" />
+                        </div>
+                        <div class="ornament" style="width: 30px; top: 70%; left: 60%; animation-delay: 1.5s;">
+                            <img src="image/k1.png" />
+                        </div>
+                        <div class="ornament" style="width: 50px; top: 22%; left: 30%; animation-delay: 1s;">
+                            <img src="image/k2.png" />
+                        </div>
+                        <style>
+                            /* 오너먼트 공통 스타일 */
+                            .ornament {
+                                position: absolute;
+                                overflow: hidden;
+                                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+                                animation: float 4s ease-in-out infinite;
+                            }
+                            .ornament img {
+                                width: 100%;
+                                height: 100%;
+                                display: block;
+                                object-fit: cover;
+                            }
+
+                            /* 둥둥 떠다니는 애니메이션 */
+                            @keyframes float {
+                                0%, 100% { transform: translateY(0px) rotate(-2deg); }
+                                50% { transform: translateY(-5px) rotate(5deg); }
+                            }
+                        </style>
+                    </div>
+                    <div style="font-size: 13px; color: #555; text-align: center;">
+                        Wishing you a joyful holiday season filled with love, laughter, and cherished moments.
+                    </div>
+                `
+            }
+        };
+
+        let zIndexCounter = 100;
+        const openWindows = {};
+
+        function createWindow(type) {
+            if (openWindows[type]) { focusWindowById(type); return; }
+            const data = contents[type];
+            const win = document.createElement('div');
+            win.className = `window-container ${data.isSmall ? 'small-win' : ''}`;
+            win.id = `window-${type}`;
+            
+            const isMobile = window.innerWidth < 768;
+                        
+            const offset = Object.keys(openWindows).length * 35;
+            const leftPos = (window.innerWidth / 2 - (data.isSmall ? 150 : 190) + offset);
+            const topPos = (window.innerHeight / 2 - 240 + offset);
+            
+            win.style.left = leftPos + 'px';
+            win.style.top = topPos + 'px';
+            win.style.zIndex = ++zIndexCounter;
+            
+            win.innerHTML = `
+                <div class="window-header">
+                    <div class="traffic-lights">
+                        <div class="light red" onclick="closeWindow('${type}'), audio.pause();"></div>
+                        <div class="light yellow"></div>
+                        <div class="light green"></div>
+                    </div>
+                    <div class="window-title">${data.icon} ${data.title}</div>
+                    <div class="close-btn-right" onclick="closeWindow('${type}'), audio.pause();">×</div>
+                </div>
+                <div class="window-content" onmousedown="focusWindowById('${type}')" ontouchstart="focusWindowById('${type}')">
+                    ${data.html}
+                </div>
+            `;
+            
+            setupDrag(win.querySelector('.window-header'), win, type);
+            document.getElementById('windows-area').appendChild(win);
+            openWindows[type] = win;
+            requestAnimationFrame(() => win.classList.add('visible'));
+            if (type === 'f1') renderF1Driver();
+        }
+
+        function closeWindow(type) {
+            const win = openWindows[type];
+            if (win) { win.classList.remove('visible'); setTimeout(() => { win.remove(); delete openWindows[type]; }, 300); }
+        }
+
+        // --- 터치 및 마우스 드래그 통합 로직 ---
+        function setupDrag(header, win, type) {
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+
+            const onStart = (e) => {
+                if (e.target.closest('.red') || e.target.closest('.close-btn-right')) return;
+                isDragging = true;
+                focusWindowById(type);
+                const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+                startX = clientX; startY = clientY;
+                initialX = win.offsetLeft; initialY = win.offsetTop;
+                
+                const moveEvent = e.type === 'touchstart' ? 'touchmove' : 'mousemove';
+                const endEvent = e.type === 'touchstart' ? 'touchend' : 'mouseup';
+                
+                const onMove = (me) => {
+                    if (!isDragging) return;
+                    if (me.type === 'touchmove') me.preventDefault();
+                    const mcX = me.type === 'touchmove' ? me.touches[0].clientX : me.clientX;
+                    const mcY = me.type === 'touchmove' ? me.touches[0].clientY : me.clientY;
+                    win.style.left = (initialX + mcX - startX) + 'px';
+                    win.style.top = (initialY + mcY - startY) + 'px';
+                };
+
+                const onEnd = () => {
+                    isDragging = false;
+                    document.removeEventListener(moveEvent, onMove);
+                    document.removeEventListener(endEvent, onEnd);
+                };
+
+                document.addEventListener(moveEvent, onMove, { passive: false });
+                document.addEventListener(endEvent, onEnd);
+            };
+
+            header.addEventListener('mousedown', onStart);
+            header.addEventListener('touchstart', onStart, { passive: false });
+        }
+
+        // --- F1 드라이버 렌더링 ---
+        function renderF1Driver() {
+            const container = document.getElementById('f1-content-container');
+            if (!container) return;
+
+            const driver = f1Drivers[currentDriverIndex];
+            
+            container.innerHTML = `
+                <div class="f1-tag">F1 WORLD CHAMPIONSHIP</div>
+                <p style="margin-bottom:15px; font-size:14px; font-weight: bold;">
+                    🏁 Displaying Driver ${currentDriverIndex + 1} of ${f1Drivers.length}
+                </p>
+
+                <div style="border:2px solid ${driver.color}; padding:15px; border-radius:18px; background: #fff; position: relative;">
+                    
+                    <div class="slider-container">
+                        <div id="george-slider" class="george-slider">
+                            ${driver.images.map(img => `<img src="${img}" alt="${driver.name}" onclick="openLightbox('${img}')" style="cursor: pointer;">`).join('')}
+                        </div>
+                        ${driver.images.length > 1 ? `
+                            <button class="slider-nav prev" onclick="moveSlider(-1)">〈</button>
+                            <button class="slider-nav next" onclick="moveSlider(1)">〉</button>
+                        ` : ''}
+                    </div>
+
+                    <div style="border-top: 1px dashed #eee; padding-top: 15px;">
+                        <span style="background: ${driver.color}; color:white; padding:3px 10px; font-weight:bold; font-style:italic; font-size:11px; border-radius: 4px;">DRIVER PROFILE</span>
+                        <div style="margin-top: 15px;">
+                            <p style="margin: 6px 0; font-size: 15px;"><b>이름:</b> ${driver.name} <span style="font-size: 11px; color: #888;">${driver.engName}</span></p>
+                            <p style="margin: 6px 0; font-size: 15px;"><b>번호:</b> ${driver.number}</p>
+                            <p style="margin: 6px 0; font-size: 15px;"><b>생년월일:</b> ${driver.birth}</p>
+                            <p style="margin: 6px 0; font-size: 15px;"><b>팀:</b> ${driver.team} <span style="font-size: 11px; color: #888;">${driver.teamEng}</span></p>
+                        </div>
+                        <p style="margin-top:15px; font-size:13px; line-height: 1.6; color: #444; background: #fcfcfc; padding: 10px; border-left: 4px solid ${driver.color}; border-radius: 4px;">
+                            ${driver.desc}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="f1-nav-footer">
+                    <button class="f1-change-btn" onclick="changeDriver(-1)">◀ Prev Driver</button>
+                    <button class="f1-change-btn" onclick="changeDriver(1)">Next Driver ▶</button>
+                </div>
+            `;
+        }
+        function changeDriver(dir) {
+            currentDriverIndex += dir;
+            if (currentDriverIndex < 0) currentDriverIndex = f1Drivers.length - 1;
+            if (currentDriverIndex >= f1Drivers.length) currentDriverIndex = 0;
+            renderF1Driver();
+        }
+
+        // --- 슬라이더 제어 (F1) ---
+        function moveSlider(dir) {
+             const sliderElement = document.getElementById('george-slider');
+             if (!sliderElement) return;
+             const width = sliderElement.clientWidth;
+             if (dir === 1) {
+                 if (sliderElement.scrollLeft + width >= sliderElement.scrollWidth - 10) sliderElement.scrollTo({left: 0, behavior: 'smooth'});
+                 else sliderElement.scrollBy({left: width, behavior: 'smooth'});
+             } else {
+                 if (sliderElement.scrollLeft <= 10) sliderElement.scrollTo({left: sliderElement.scrollWidth, behavior: 'smooth'});
+                 else sliderElement.scrollBy({left: -width, behavior: 'smooth'});
+            }
+        }
+        // --- 음악 플레이어 기능 ---
+        // --- 음악 제어 ---
+        function togglePlay() {
+            const btn = document.getElementById('play-btn-main');
+            const disc = document.getElementById('player-disc');
+            if (audio.paused) {
+                audio.play()
+                    .then(() => {
+                        if (btn) btn.innerText = '⏸';
+                        if (disc) disc.classList.add('playing');
+                    })
+                    .catch((err) => {
+                        console.error('Failed to play audio:', err);
+                        if (btn) btn.innerText = '▶';
+                        if (disc) disc.classList.remove('playing');
+                    });
+            } else {
+                audio.pause();
+                if (btn) btn.innerText = '▶';
+                if (disc) disc.classList.remove('playing');
+            }
+        }
+
+        function syncMusicUI() {
+            const btn = document.getElementById('play-btn-main');
+            const disc = document.getElementById('player-disc');
+            if (btn) btn.innerText = audio.paused ? '▶' : '⏸';
+            if (disc && !audio.paused) disc.classList.add('playing');
+        }
+
+        function setVolume(val) { audio.volume = val; }
+
+        function seekAudio(e) {
+            if (!audio.duration) return;
+            const bar = e.currentTarget;
+            const rect = bar.getBoundingClientRect();
+            const offsetX = e.clientX - rect.left;
+            const percent = offsetX / rect.width;
+            audio.currentTime = percent * audio.duration;
+        }
+
+        audio.ontimeupdate = () => {
+            const progress = document.getElementById('music-progress');
+            if (progress && audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progress.style.width = percent + '%';
+            }
+        };
+
+        audio.onended = () => {
+            const btn = document.getElementById('play-btn-main');
+            const disc = document.getElementById('player-disc');
+            if (btn) btn.innerText = '▶';
+            if (disc) disc.classList.remove('playing');
+        };
+        function focusWindowById(type) { const el = openWindows[type]; if (el) el.style.zIndex = ++zIndexCounter; }
+        function openLightbox(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').classList.add('visible'); }
+        function closeLightbox() { document.getElementById('lightbox').classList.remove('visible'); }
+        function updateClock() {
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock-time').innerText = time;
+            if (document.getElementById('clock-bottom')) document.getElementById('clock-bottom').innerText = time;
+            document.getElementById('clock-date').innerText = (now.getMonth() + 1).toString().padStart(2, '0') + "." + now.getDate().toString().padStart(2, '0') + " " + ['SUN','MON','TUE','WED','THU','FRI','SAT'][now.getDay()];
+        }
+        setInterval(updateClock, 1000); updateClock();
+        window.onload = () => createWindow('letter');
+    </script>
+</body>
+</html>
