@@ -106,7 +106,7 @@
 
         @media (min-width: 768px) { .clock-container { align-items: flex-start; } }
 
-        #clock-time { font-size: 36px; font-weight: 900; color: #ff69b4; line-height: 1; letter-spacing: -1.5px; margin-bottom: 4px; }
+        #clock-time { font-size: 36px; font-weight: 900; color: #ff69b4; line-height: 1; letter-spacing: 2px; margin-bottom: 4px; white-space: pre;}
         #clock-date { font-family: 'ThinRounded', sans-serif; font-size: 15px; font-weight: 700; color: #d15c82; opacity: 0.9; }
 
         /* 사이드바 -> 모바일 하단 바로 변경 */
@@ -574,7 +574,7 @@
                             올해는 네가 바라는 모든 일들이 다 이뤄지길 바랄게.<br><br>
 
                             오늘 하루, 세상에서 제일 행복한 사람이 되길!<br>
-                            생일 진짜 진짜 축하해!!! 🎂🎈🎉<br><br>
+                            생일 진짜 진짜 축하해!!! 🎂🎈🎉
 
                             ps. 분홍색 부분 드래그하면 움직임!<br>아래에 있는 것들 클릭해봐ㅎㅎ</div>
                     </div>
@@ -916,6 +916,7 @@
         function updateClock() {
             const now = new Date();
             const time = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            const spacedTime = time.replace(":", "  :  ");
             document.getElementById('clock-time').innerText = time;
             if (document.getElementById('clock-bottom')) document.getElementById('clock-bottom').innerText = time;
             document.getElementById('clock-date').innerText = (now.getMonth() + 1).toString().padStart(2, '0') + "." + now.getDate().toString().padStart(2, '0') + " " + ['SUN','MON','TUE','WED','THU','FRI','SAT'][now.getDay()];
@@ -926,4 +927,3 @@
 </body>
 
 </html>
-
